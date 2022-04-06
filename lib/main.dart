@@ -50,17 +50,19 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
+late Color canvasColor;
 class _MyHomePageState extends State<MyHomePage> {
   List<DrawingArea> points = [];
   late Color selectedColor;
   late double strokeWidth;
+  
   final controller = ScreenshotController();
 
   @override
   void initState() {
     super.initState();
     selectedColor = Colors.black;
+    canvasColor = Colors.white;
     strokeWidth = 2.0;
   }
 
@@ -78,44 +80,43 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget painter() => GestureDetector(
-                      onPanDown: (details) {
-                        this.setState(() {
-                          points.add(DrawingArea(
-                              point: details.localPosition,
-                              areaPaint: Paint()
-                                ..strokeCap = StrokeCap.round
-                                ..isAntiAlias = true
-                                ..color = selectedColor
-                                ..strokeWidth = strokeWidth));
-                        });
-                      },
-                      onPanUpdate: (details) {
-                        this.setState(() {
-                          points.add(DrawingArea(
-                              point: details.localPosition,
-                              areaPaint: Paint()
-                                ..strokeCap = StrokeCap.round
-                                ..isAntiAlias = true
-                                ..color = selectedColor
-                                ..strokeWidth = strokeWidth));
-                        });
-                      },
-                      onPanEnd: (details) {
-                        this.setState(() {
-                          // ignore: dead_code
-                          points.add(DrawingArea(
-                              point: Offset.zero, areaPaint: Paint()));
-                        });
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                        child: CustomPaint(
-                          painter: MyCustomPainter(points: points),
-                        ),
-                      ),
-                    );
+        onPanDown: (details) {
+          this.setState(() {
+            points.add(DrawingArea(
+                point: details.localPosition,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = selectedColor
+                  ..strokeWidth = strokeWidth));
+          });
+        },
+        onPanUpdate: (details) {
+          this.setState(() {
+            points.add(DrawingArea(
+                point: details.localPosition,
+                areaPaint: Paint()
+                  ..strokeCap = StrokeCap.round
+                  ..isAntiAlias = true
+                  ..color = selectedColor
+                  ..strokeWidth = strokeWidth));
+          });
+        },
+        onPanEnd: (details) {
+          this.setState(() {
+            // ignore: dead_code
+            points.add(DrawingArea(point: Offset.zero, areaPaint: Paint()));
+          });
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          child: CustomPaint(
+            painter: MyCustomPainter(points: points),
+          ),
+        ),
+      );
 
-  void selectColor() {
+  void selectBrushColor() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -126,6 +127,32 @@ class _MyHomePageState extends State<MyHomePage> {
             onColorChanged: (color) {
               this.setState(() {
                 selectedColor = color;
+              });
+            },
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'))
+        ],
+      ),
+    );
+  }
+
+  void selectCanvasColor() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Choose Your Color"),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: canvasColor,
+            onColorChanged: (color) {
+              this.setState(() {
+                canvasColor = color;
               });
             },
           ),
@@ -177,18 +204,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: width * 0.65,
-                    height: height * 0.8,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 5.0,
-                              spreadRadius: 1.0),
-                        ]),
-                    child: painter()
-                  ),
+                      width: width * 0.65,
+                      height: height * 0.8,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 5.0,
+                                spreadRadius: 1.0),
+                          ]),
+                      child: painter()),
                   SizedBox(
                     height: 20,
                   ),
@@ -197,17 +223,23 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                    ),
+                      ),
                     child: Row(
                       children: <Widget>[
                         IconButton(
                           onPressed: () {
-                            selectColor();
+                            selectBrushColor();
                           },
-                          icon: Icon(Icons.color_lens),
+                          icon: Icon(Icons.brush),
                           iconSize: 20,
                           color: selectedColor.withOpacity(1.0),
                         ),
+                        IconButton(
+                          onPressed: (){
+                            selectCanvasColor();
+                          },
+                          icon: Icon(Icons.color_lens),
+                         ),
                         Expanded(
                             child: Slider(
                                 min: 1.0,
@@ -238,18 +270,31 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         floatingActionButton: SpeedDial(
           animatedIcon: AnimatedIcons.menu_close,
-          backgroundColor: Color.fromARGB(255, 155, 40, 200),
+          foregroundColor: Colors.black,
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+         
+          
           children: [
-            SpeedDialChild(child: Icon(Icons.upload_file)),
             SpeedDialChild(
-                child: Icon(Icons.screenshot),
-                label: 'Save Screenshot',
-                onTap: () async {
+              backgroundColor: Color.fromARGB(255, 155, 40, 200),
+              foregroundColor: Colors.white,
+              child: Icon(
+                Icons.upload_file
+                )
+              ),
+            SpeedDialChild(
+              backgroundColor: Color.fromARGB(255, 155, 40, 200),
+              foregroundColor: Colors.white,
+              child: Icon(Icons.screenshot),
+              label: 'Save Screenshot',
+              onTap: () async {
                   final screenshotImage = await controller.capture();
                   if (screenshotImage == null) return;
                   await saveImage(screenshotImage);
                 }),
             SpeedDialChild(
+              backgroundColor: Color.fromARGB(255, 155, 40, 200),
+              foregroundColor: Colors.white,
                 label: 'Save Painting',
                 child: Icon(Icons.save),
                 onTap: () async {
@@ -273,7 +318,7 @@ class MyCustomPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint background = Paint()..color = Colors.white;
+    Paint background = Paint()..color = canvasColor;
     Rect box = Rect.fromLTWH(0, 0, size.width, size.height);
 
     canvas.drawRect(box, background);
