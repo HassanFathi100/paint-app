@@ -57,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late double strokeWidth;
   
   final controller = ScreenshotController();
+  final widgetImageController = ScreenshotController();
 
   @override
   void initState() {
@@ -78,6 +79,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final result = await ImageGallerySaver.saveImage(bytes, name: name);
     return result['filePath'];
   }
+
+  Widget canvas() => CustomPaint(
+            painter: MyCustomPainter(points: points));
 
   Widget painter() => GestureDetector(
         onPanDown: (details) {
@@ -110,9 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(20)),
-          child: CustomPaint(
-            painter: MyCustomPainter(points: points),
-          ),
+          child: canvas(),
+          
         ),
       );
 
@@ -214,7 +217,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 blurRadius: 5.0,
                                 spreadRadius: 1.0),
                           ]),
-                      child: painter()),
+                      child: Screenshot(
+                        controller: widgetImageController,
+                        child: painter()
+                        )
+                      ),
                   SizedBox(
                     height: 20,
                   ),
@@ -232,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           icon: Icon(Icons.brush),
                           iconSize: 20,
-                          color: selectedColor.withOpacity(1.0),
+                          color: Colors.black,
                         ),
                         IconButton(
                           onPressed: (){
@@ -244,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Slider(
                                 min: 1.0,
                                 max: 7.0,
-                                activeColor: selectedColor.withOpacity(1.0),
+                                activeColor: Colors.black,
                                 value: strokeWidth,
                                 onChanged: (value) {
                                   this.setState(() {
@@ -299,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Icon(Icons.save),
                 onTap: () async {
                   final paintingImage =
-                      await controller.captureFromWidget(painter());
+                      await widgetImageController.capture();
 
                   if (paintingImage == null) return;
                   await saveImage(paintingImage);
