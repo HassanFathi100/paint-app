@@ -158,143 +158,137 @@ class _MyHomePageState extends State<MyHomePage> {
     final double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: <Widget>[
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                  Color.fromARGB(255, 155, 40, 200),
-                  Color.fromARGB(255, 46, 22, 182)
-                ])),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                    width: width,
-                    height: height,
-                    child: Screenshot(
-                        controller: widgetImageController, child: painter())),
-              ],
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Stack(
+          children: <Widget>[
+            SizedBox(
+              height: 20,
             ),
-          ),
-          Positioned(
-            left: width * 0.25,
-            right: width * 0.25,
-            bottom: height * 0.05,
-            child: Container(
-              width: width * 0.65,
-              height: height * 0.05,
+            Container(
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 5.0,
-                      spreadRadius: 1.0),
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                    Color.fromARGB(255, 155, 40, 200),
+                    Color.fromARGB(255, 46, 22, 182)
+                  ])),
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                      width: width,
+                      height: height,
+                      child: Screenshot(
+                          controller: widgetImageController, child: painter())),
                 ],
               ),
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    // Brush
-                    onPressed: () {
-                      // if eraser not pressed
-                      if (eraserFlag == 0) {
-                        selectedColor = Colors.black;
-                        eraserFlag = 2;
+            ),
+            Positioned(
+              left: width * 0.1,
+              right: width * 0.1,
+              bottom: height * 0.05,
+              child: Container(
+                width: width * 0.8,
+                height: height * 0.05,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 5.0,
+                        spreadRadius: 1.0),
+                  ],
+                ),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      // Brush
+                      onPressed: () {
+                        // if eraser not pressed
+                        if (eraserFlag == 0) {
+                          selectedColor = Colors.black;
+                          eraserFlag = 2;
 
-                        // if eraser is pressed but brush not pressed
-                      } else if (eraserFlag == 1) {
-                        selectedColor = lastSelectedColor;
+                          // if eraser is pressed but brush not pressed
+                        } else if (eraserFlag == 1) {
+                          selectedColor = lastSelectedColor;
 
-                        // if brush is pressed
-                      } else if (eraserFlag == 2) {
-                        return;
-                      }
-                    },
-                    icon: Icon(Icons.brush),
-                    iconSize: 20,
-                    color: Colors.black,
-                  ),
-                  IconButton(
+                          // if brush is pressed
+                        } else if (eraserFlag == 2) {
+                          return;
+                        }
+                      },
+                      icon: Icon(Icons.brush),
+                      iconSize: 20,
+                      color: Colors.black,
+                    ),
+                    IconButton(
+                      // Brush color
                       onPressed: () {
                         selectBrushColor();
                       },
-                      icon: Icon(Icons.color_lens)),
-                  Expanded(
-                      child: Slider(
-                          min: 1.0,
-                          max: 7.0,
-                          activeColor: Colors.black,
-                          value: strokeWidth,
-                          onChanged: (value) {
-                            this.setState(() {
-                              strokeWidth = value;
-                            });
-                          })),
-                  IconButton(
-                    // Eraser
-                    onPressed: () {
-                      eraserFlag = 1;
-                      setState(() {
-                        selectedColor = Colors.white;
-                      });
-                    },
-                    icon: Icon(MyCustomIcons.eraser_fill),
-                  ),
-                  IconButton(
-                    // Clear Canvas
-                    onPressed: () {
-                      setState(() {
-                        points.clear();
-                      });
-                    },
-                    icon: Icon(Icons.layers_clear),
-                    iconSize: 20,
-                  ),
-                ],
+                      icon: Icon(Icons.color_lens),
+                      iconSize: 20,
+                    ),
+                    Expanded(
+                        child: Slider(
+                            min: 1.0,
+                            max: 15.0,
+                            activeColor: Colors.black,
+                            value: strokeWidth,
+                            onChanged: (value) {
+                              this.setState(() {
+                                strokeWidth = value;
+                              });
+                            })),
+                    IconButton(
+                      // Eraser
+                      onPressed: () {
+                        eraserFlag = 1;
+                        setState(() {
+                          selectedColor = Colors.white;
+                        });
+                      },
+                      icon: Icon(MyCustomIcons.eraser_fill),
+                      iconSize: 20,
+                    ),
+                    IconButton(
+                      // Clear Canvas
+                      onPressed: () {
+                        eraserFlag = 1;
+                        setState(() {
+                          points.clear();
+                        });
+                      },
+                      icon: Icon(Icons.layers_clear),
+                      iconSize: 20,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
-      ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        foregroundColor: Colors.white,
-        // backgroundColor: Color.fromARGB(255, 255, 255, 255),
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.save),
+            onPressed: () async {
+              final paintingImage = await widgetImageController.capture();
 
-        children: [
-          SpeedDialChild(
-              // Load photo
-              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
-              // foregroundColor: Colors.white,
-              child: Icon(Icons.upload_file)),
-          SpeedDialChild(
-              // Save Painting
-              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
-              // foregroundColor: Colors.white,
-              label: 'Save Painting',
-              child: Icon(Icons.save),
-              onTap: () async {
-                final paintingImage = await widgetImageController.capture();
+              if (paintingImage == null) return;
+              await saveImage(paintingImage);
+            }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop
 
-                if (paintingImage == null) return;
-                await saveImage(paintingImage);
-              })
-        ],
-      ),
-    );
+        );
   }
 }
 
