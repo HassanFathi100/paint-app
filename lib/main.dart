@@ -2,6 +2,8 @@
 
 import 'dart:typed_data';
 import 'dart:ui';
+import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -9,6 +11,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:paint_app/my_custom_icons_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
@@ -65,6 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final controller = ScreenshotController();
   final widgetImageController = ScreenshotController();
+
+  bool isFile = false;
+  late File image;
+  late Uint8List memoryImage;
 
   @override
   void initState() {
@@ -125,6 +132,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
 
+  Widget buildImage() => Image.file(
+        image,
+      );
+
   void selectBrushColor() {
     showDialog(
       context: context,
@@ -174,19 +185,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   Color.fromARGB(255, 46, 22, 182)
                 ])),
           ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                    width: width,
-                    height: height,
-                    child: Screenshot(
-                        controller: widgetImageController, child: painter())),
-              ],
+          if (image != null) buildImage(),
+          if (image == null)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                      width: width,
+                      height: height,
+                      child: Screenshot(
+                          controller: widgetImageController, child: painter())),
+                ],
+              ),
             ),
-          ),
           Positioned(
             left: width * 0.25,
             right: width * 0.25,
@@ -279,7 +292,22 @@ class _MyHomePageState extends State<MyHomePage> {
               // Load photo
               // backgroundColor: Color.fromARGB(255, 155, 40, 200),
               // foregroundColor: Colors.white,
-              child: Icon(Icons.upload_file)),
+              child: Icon(Icons.upload_file),
+              onTap: () async {
+                final imagePicker = ImagePicker();
+                final pickedImage =
+                    await imagePicker.getImage(source: ImageSource.gallery);
+
+                if (pickedImage == null) return;
+
+                if (isFile) {
+                  final file = File(pickedImage.path);
+
+                  setState(() {
+                    image = file;
+                  });
+                }
+              }),
           SpeedDialChild(
               // Save Painting
               // backgroundColor: Color.fromARGB(255, 155, 40, 200),

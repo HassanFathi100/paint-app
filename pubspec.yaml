@@ -47,7 +47,9 @@ dependencies:
   # To take screenshot of screen or widget
   screenshot: ^1.2.1
 
-  hovering: ^1.0.4
+  # To load image from phone
+  image_picker: ^0.6.7+14
+
 
 dev_dependencies:
 
