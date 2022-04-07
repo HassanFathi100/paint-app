@@ -24,11 +24,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Paint',
+      title: 'Painter',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Paint'),
+      home: const MyHomePage(title: 'Painter'),
     );
   }
 }
@@ -212,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: <Widget>[
                     IconButton(
                       // Brush
+                      tooltip: 'Brush',
                       onPressed: () {
                         // if eraser not pressed
                         if (eraserFlag == 0) {
@@ -233,6 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     IconButton(
                       // Brush color
+                      tooltip: 'Choose Color',
                       onPressed: () {
                         selectBrushColor();
                       },
@@ -252,6 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             })),
                     IconButton(
                       // Eraser
+                      tooltip: 'Eraser',
                       onPressed: () {
                         eraserFlag = 1;
                         setState(() {
@@ -263,6 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     IconButton(
                       // Clear Canvas
+                      tooltip: 'Clear',
                       onPressed: () {
                         eraserFlag = 1;
                         setState(() {
@@ -279,16 +283,24 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
+            tooltip: 'Save to Gallery',
             child: Icon(Icons.save),
             onPressed: () async {
               final paintingImage = await widgetImageController.capture();
 
               if (paintingImage == null) return;
               await saveImage(paintingImage);
-            }),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endTop
 
-        );
+              final snackBar = SnackBar(
+                content: Text('Your ART is saved in the gallery'),
+                action: SnackBarAction(
+                  label: 'Dismiss',
+                  onPressed: () {},
+                ),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop);
   }
 }
 

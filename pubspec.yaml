@@ -49,6 +49,9 @@ dependencies:
 
   hovering: ^1.0.4
 
+  # Alert
+  rflutter_alert:
+
 dev_dependencies:
 
   # To add icons
