@@ -53,12 +53,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 late Color canvasColor;
-bool eraserFlag = false;
+int eraserFlag =
+    0; // 0: Eraser NOT pressed - 1: Eraser pressed - 2: Brush pressed
 
 class _MyHomePageState extends State<MyHomePage> {
   List<DrawingArea> points = [];
   late Color selectedColor;
   late double strokeWidth;
+  late double eraserStrokeWidth;
+  late Color lastSelectedColor;
 
   final controller = ScreenshotController();
   final widgetImageController = ScreenshotController();
@@ -67,8 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     selectedColor = Colors.black;
+    lastSelectedColor = Colors.black;
     canvasColor = Colors.white;
     strokeWidth = 2.0;
+    eraserStrokeWidth = 2 * strokeWidth;
   }
 
   Future<String> saveImage(Uint8List bytes) async {
@@ -131,32 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onColorChanged: (color) {
               this.setState(() {
                 selectedColor = color;
-              });
-            },
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Select'))
-        ],
-      ),
-    );
-  }
-
-  void selectCanvasColor() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Choose Your Color"),
-        content: SingleChildScrollView(
-          child: MaterialPicker(
-            pickerColor: canvasColor,
-            onColorChanged: (color) {
-              this.setState(() {
-                canvasColor = color;
+                lastSelectedColor = color;
               });
             },
           ),
@@ -215,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: width * 0.65,
               height: height * 0.05,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.grey[100],
                 borderRadius: BorderRadius.all(Radius.circular(20.0)),
                 boxShadow: [
                   BoxShadow(
@@ -229,7 +209,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   IconButton(
                     // Brush
                     onPressed: () {
-                      selectedColor = Colors.black;
+                      // if eraser not pressed
+                      if (eraserFlag == 0) {
+                        selectedColor = Colors.black;
+                        eraserFlag = 2;
+
+                        // if eraser is pressed but brush not pressed
+                      } else if (eraserFlag == 1) {
+                        selectedColor = lastSelectedColor;
+
+                        // if brush is pressed
+                      } else if (eraserFlag == 2) {
+                        return;
+                      }
                     },
                     icon: Icon(Icons.brush),
                     iconSize: 20,
@@ -254,6 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   IconButton(
                     // Eraser
                     onPressed: () {
+                      eraserFlag = 1;
                       setState(() {
                         selectedColor = Colors.white;
                       });
