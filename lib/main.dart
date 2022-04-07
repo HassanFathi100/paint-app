@@ -309,7 +309,6 @@ class MyCustomPainter extends CustomPainter {
     Rect box = Rect.fromLTWH(0, 0, size.width, size.height);
 
     canvas.drawRect(box, background);
-    final blendMode = BlendMode.clear;
 
     for (int x = 0; x < points.length - 1; x++) {
       if (points[x].point != Offset.zero &&

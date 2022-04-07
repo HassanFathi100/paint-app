@@ -1,6 +1,6 @@
 # paint_app
 
-A new Flutter project.
+Draw on a white canvas 
 
 ## Getting Started
 
