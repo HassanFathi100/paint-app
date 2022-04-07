@@ -9,6 +9,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:paint_app/my_custom_icons_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Paint 4 Kids',
+      title: 'Paint',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -50,12 +51,15 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
 late Color canvasColor;
+bool eraserFlag = false;
+
 class _MyHomePageState extends State<MyHomePage> {
   List<DrawingArea> points = [];
   late Color selectedColor;
   late double strokeWidth;
-  
+
   final controller = ScreenshotController();
   final widgetImageController = ScreenshotController();
 
@@ -80,8 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return result['filePath'];
   }
 
-  Widget canvas() => CustomPaint(
-            painter: MyCustomPainter(points: points));
+  Widget canvas() => CustomPaint(painter: MyCustomPainter(points: points));
 
   Widget painter() => GestureDetector(
         onPanDown: (details) {
@@ -114,7 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ClipRRect(
           // borderRadius: BorderRadius.all(Radius.circular(20)),
           child: canvas(),
-          
         ),
       );
 
@@ -175,129 +177,131 @@ class _MyHomePageState extends State<MyHomePage> {
     final double width = MediaQuery.of(context).size.width;
     final double height = MediaQuery.of(context).size.height;
 
-    return 
-      Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Stack(
-          children: <Widget>[
-            SizedBox(
-              height: 20,
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: <Widget>[
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                  Color.fromARGB(255, 155, 40, 200),
+                  Color.fromARGB(255, 46, 22, 182)
+                ])),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                    width: width,
+                    height: height,
+                    child: Screenshot(
+                        controller: widgetImageController, child: painter())),
+              ],
             ),
-            Container(
+          ),
+          Positioned(
+            left: width * 0.25,
+            right: width * 0.25,
+            bottom: height * 0.05,
+            child: Container(
+              width: width * 0.65,
+              height: height * 0.05,
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                    Color.fromARGB(255, 155, 40, 200),
-                    Color.fromARGB(255, 46, 22, 182)
-                  ])),
-            ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 5.0,
+                      spreadRadius: 1.0),
+                ],
+              ),
+              child: Row(
                 children: <Widget>[
-                  Container(
-                      width: width ,
-                      height: height ,
-                      child: Screenshot(
-                        controller: widgetImageController,
-                        child: painter()
-                        )
-                      ),
+                  IconButton(
+                    // Brush
+                    onPressed: () {
+                      selectedColor = Colors.black;
+                    },
+                    icon: Icon(Icons.brush),
+                    iconSize: 20,
+                    color: Colors.black,
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        selectBrushColor();
+                      },
+                      icon: Icon(Icons.color_lens)),
+                  Expanded(
+                      child: Slider(
+                          min: 1.0,
+                          max: 7.0,
+                          activeColor: Colors.black,
+                          value: strokeWidth,
+                          onChanged: (value) {
+                            this.setState(() {
+                              strokeWidth = value;
+                            });
+                          })),
+                  IconButton(
+                    // Eraser
+                    onPressed: () {
+                      setState(() {
+                        selectedColor = Colors.white;
+                      });
+                    },
+                    icon: Icon(MyCustomIcons.eraser_fill),
+                  ),
+                  IconButton(
+                    // Clear Canvas
+                    onPressed: () {
+                      setState(() {
+                        points.clear();
+                      });
+                    },
+                    icon: Icon(Icons.layers_clear),
+                    iconSize: 20,
+                  ),
                 ],
               ),
             ),
-            Positioned(
-              left: width * 0.25,
-              right: width * 0.25,
-              bottom: height * 0.05,
-              child: Container(
-                      width: width * 0.65,
-                      height: height * 0.05,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 5.0,
-                              spreadRadius: 1.0),
-                          ],
-                        ),
-                      child: Row(
-                        children: <Widget>[
-                          IconButton(
-                            onPressed: () {
-                              selectBrushColor();
-                            },
-                            icon: Icon(Icons.brush),
-                            iconSize: 20,
-                            color: Colors.black,
-                          ),
-                          IconButton(
-                            onPressed: (){
-                              selectCanvasColor();
-                            },
-                            icon: Icon(Icons.color_lens),
-                           ),
-                          Expanded(
-                              child: Slider(
-                                  min: 1.0,
-                                  max: 7.0,
-                                  activeColor: Colors.black,
-                                  value: strokeWidth,
-                                  onChanged: (value) {
-                                    this.setState(() {
-                                      strokeWidth = value;
-                                    });
-                                  })),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                points.clear();
-                              });
-                            },
-                            icon: Icon(Icons.layers_clear),
-                            iconSize: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-            )
-          ],
-        ),
-        floatingActionButton: SpeedDial(
-          animatedIcon: AnimatedIcons.menu_close,
-          foregroundColor: Colors.white,
-          // backgroundColor: Color.fromARGB(255, 255, 255, 255),
-         
-          
-          children: [
-            SpeedDialChild( // Load photo
-              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
-              // foregroundColor: Colors.white,
-              child: Icon(
-                Icons.upload_file
-                )
-              ),
-            SpeedDialChild( // Save Painting
-              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
-              // foregroundColor: Colors.white,
-                label: 'Save Painting',
-                child: Icon(Icons.save),
-                onTap: () async {
-                  final paintingImage =
-                      await widgetImageController.capture();
+          )
+        ],
+      ),
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        foregroundColor: Colors.white,
+        // backgroundColor: Color.fromARGB(255, 255, 255, 255),
 
-                  if (paintingImage == null) return;
-                  await saveImage(paintingImage);
-                })
-          ],
-        ),
-      );
-    
+        children: [
+          SpeedDialChild(
+              // Load photo
+              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
+              // foregroundColor: Colors.white,
+              child: Icon(Icons.upload_file)),
+          SpeedDialChild(
+              // Save Painting
+              // backgroundColor: Color.fromARGB(255, 155, 40, 200),
+              // foregroundColor: Colors.white,
+              label: 'Save Painting',
+              child: Icon(Icons.save),
+              onTap: () async {
+                final paintingImage = await widgetImageController.capture();
+
+                if (paintingImage == null) return;
+                await saveImage(paintingImage);
+              })
+        ],
+      ),
+    );
   }
 }
 
@@ -312,6 +316,7 @@ class MyCustomPainter extends CustomPainter {
     Rect box = Rect.fromLTWH(0, 0, size.width, size.height);
 
     canvas.drawRect(box, background);
+    final blendMode = BlendMode.clear;
 
     for (int x = 0; x < points.length - 1; x++) {
       if (points[x].point != Offset.zero &&
